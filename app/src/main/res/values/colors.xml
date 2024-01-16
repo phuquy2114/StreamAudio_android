@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="backgroundColor">#0d1a1c</color>
+    <color name="firstPathColor">#82e6c9</color>
+    <color name="centerPathColor">#64ffffff</color>
+    <color name="secondPathColor">#0451EA</color>
+
 </resources>

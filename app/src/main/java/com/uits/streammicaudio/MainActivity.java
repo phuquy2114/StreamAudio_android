@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.uits.streammicaudio.component.RecordWaveView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         requestAudioPermissions();
         SetupRecordButtons();  //MOVE THIS OUTSIDE ;)
     }
@@ -54,51 +54,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void SetupRecordButtons() {
         Button startButton = (Button) findViewById(R.id.btnStart);
-        startButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-//                startRecording();
-
-                startStreamAudio();
-            }
+        startButton.setOnClickListener(v -> {
+            startStreamAudio();
         });
 
         Button stopButton = (Button) findViewById(R.id.btnStop);
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-//                stopRecording();
-                stopStreaming();
-            }
+        stopButton.setOnClickListener(v -> {
+            stopStreaming();
         });
         stopButton.setEnabled(false);
-    }
-
-    public void startRecording() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE,
-                CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
-
-        recorder.startRecording();
-        isRecording = true;
-
-        recordingThread = new Thread(new Runnable() {
-            public void run() {
-                writeAudioData();
-            }
-
-        });
-
-
-        //Start recording thread
-        recordingThread.start();
-
-        Button startButton = (Button) findViewById(R.id.btnStart);
-        startButton.setEnabled(false);
-        Button stopButton = (Button) findViewById(R.id.btnStop);
-        stopButton.setEnabled(true);
-        TextView indicatorLabel = (TextView) findViewById(R.id.indicatorLabel);
-        indicatorLabel.setText("recording");
     }
 
     @SuppressLint("SetTextI18n")
@@ -179,56 +143,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    public void stopRecording() {
-        isRecording = false;
-        recorder.stop();
-        recorder.release();
-        recorder = null;
-        recordingThread = null;
-
-        Button startButton = (Button) findViewById(R.id.btnStart);
-        startButton.setEnabled(true);
-        Button stopButton = (Button) findViewById(R.id.btnStop);
-        stopButton.setEnabled(false);
-        TextView indicatorLabel = (TextView) findViewById(R.id.indicatorLabel);
-        indicatorLabel.setText("Halted");
-    }
-
-    private void writeAudioData() {
-        byte data[] = new byte[bufferSize];
-
-        while (isRecording) {
-            recorder.read(data, 0, bufferSize);
-            send(data);
-
-        }
-    }
-
-    private void send(byte[] data) {
-
-        int minBufferSize = AudioTrack.getMinBufferSize(
-                SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                AudioFormat.ENCODING_PCM_16BIT
-        );
-
-        AudioTrack at = new AudioTrack(
-                AudioManager.STREAM_MUSIC,
-                SAMPLE_RATE,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                minBufferSize,
-                AudioTrack.MODE_STREAM
-        );
-        at.setPlaybackRate(SAMPLE_RATE);
-
-        at.play();
-        at.write(data, 0, bufferSize);
-        at.stop();
-        at.release();
-
-    }
-
     private void stopStreaming() {
         if (audioRecord != null) {
             audioRecord.stop();
@@ -244,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         Button stopButton = (Button) findViewById(R.id.btnStop);
         stopButton.setEnabled(false);
         TextView indicatorLabel = (TextView) findViewById(R.id.indicatorLabel);
-        indicatorLabel.setText("halted");
+        indicatorLabel.setText("Halted");
     }
 
     @Override
