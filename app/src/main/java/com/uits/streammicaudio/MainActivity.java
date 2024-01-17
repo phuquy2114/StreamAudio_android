@@ -1,5 +1,6 @@
 package com.uits.streammicaudio;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -139,6 +140,45 @@ public class MainActivity extends AppCompatActivity {
                     bufferSize,
                     AudioTrack.MODE_STREAM
             );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSIONS_RECORD_AUDIO: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+
+                    bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
+                    //Go ahead with recording audio now
+                    audioRecord = new AudioRecord(
+                            MediaRecorder.AudioSource.MIC,
+                            SAMPLE_RATE,
+                            CHANNEL_CONFIG,
+                            AUDIO_FORMAT,
+                            bufferSize
+                    );
+
+                    audioTrack = new AudioTrack(
+                            android.media.AudioManager.STREAM_MUSIC,
+                            SAMPLE_RATE,
+                            AudioFormat.CHANNEL_OUT_MONO,
+                            AUDIO_FORMAT,
+                            bufferSize,
+                            AudioTrack.MODE_STREAM
+                    );
+                } else {
+                    Toast.makeText(this, "Permissions Denied to record audio", Toast.LENGTH_LONG).show();
+                }
+                return;
+
+            }
         }
     }
 
